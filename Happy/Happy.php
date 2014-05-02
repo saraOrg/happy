@@ -30,6 +30,7 @@ define('HTML_PATH', RUNTIME_PATH . 'Html/');    //应用静态目录
 define('DATA_PATH', RUNTIME_PATH . 'Data/');    //应用数据目录
 define('CACHE_PATH', RUNTIME_PATH . 'Cache/');  //应用模版编译目录
 define('COMMON_PATH', HAPPY_PATH . 'Common/');   //框架公共目录
+
 //加载运行时文件
 if (file_exists(TEMP_PATH . '~rumetime.php')) {
     include TEMP_PATH . '~rumetime.php';
