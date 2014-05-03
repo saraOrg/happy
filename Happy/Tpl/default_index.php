@@ -2,16 +2,19 @@
 
 /**
  * =================================================
- * 定义项目初始化文件
+ * 本类由系统自动生成，仅供测试用途
  * ================================================
  * @category happy
  * @package Admin/
  * @subpackage Action
  * @author Happy <yangbai6644@163.com>
- * @dateTime 2014-5-3 12:27:41
+ * @dateTime 2014-5-3 16:42:41
  * ================================================
  */
-return array(
-    HAPPY_PATH . 'Common/functions.php', //项目底层函数库
-    CORE_PATH . 'Happy.class.php'    //框架核心类
-);
+class IndexController extends Controller {
+
+    public function index() {
+        echo '欢迎使用HappyPHP！';
+    }
+
+}
