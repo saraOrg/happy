@@ -2,18 +2,22 @@
 
 /**
  * =================================================
- * 定义项目初始化文件
+ * 框架初始化类
  * ================================================
  * @category happy
  * @package Admin/
  * @subpackage Action
  * @author Happy <yangbai6644@163.com>
- * @dateTime 2014-5-3 12:27:41
+ * @dateTime 2014-5-3 12:49:51
  * ================================================
  */
-return array(
-    COMMON_PATH . 'functions.php', //项目底层函数库
-    CORE_PATH . 'Happy.class.php'    //框架核心类
-);
+class App {
 
+    /**
+     * 初始化运行函数
+     */
+    public static function run() {
+        echo '欢迎使用HappyPHP！';
+    }
 
+}
