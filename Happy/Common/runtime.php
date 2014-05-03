@@ -33,10 +33,10 @@ function check_runtime() {
         header('Content-Type:text/html;charset=utf-8');
         exit('目录 [ ' . RUNTIME_PATH . ' ] 不可写！');
     }
-    is_dir(CACHE_PATH) || mkdir(CACHE_PATH, 0777);
-    is_dir(LOG_PATH) || mkdir(LOG_PATH, 0777);
-    is_dir(DATA_PATH) || mkdir(DATA_PATH, 0777);
-    is_dir(TEMP_PATH) || mkdir(TEMP_PATH, 0777);
+    is_dir(CACHE_PATH) || mkdir(CACHE_PATH, 0777);  //缓存目录
+    is_dir(LOG_PATH) || mkdir(LOG_PATH, 0777);      //日志目录
+    is_dir(DATA_PATH) || mkdir(DATA_PATH, 0777);    //数据目录
+    is_dir(TEMP_PATH) || mkdir(TEMP_PATH, 0777);    //临时目录
     //载入核心文件
     $files = require HAPPY_PATH . 'Common/files.php';
     foreach ($files as $file) {
@@ -53,7 +53,7 @@ function build_app_dir() {
     is_dir(MODEL_PATH) || mkdir(MODEL_PATH, 0777);      //项目模型目录
     is_dir(COMMON_PATH) || mkdir(COMMON_PATH, 0777);    //项目公共函数目录
     is_dir(CONF_PATH) || mkdir(CONF_PATH, 0777);        //项目配置文件目录
-    file_put_contents(CONF_PATH . 'config.php', "<?php\nreturn array(\n\t//'配置项'=>'配置值'\n);\n?>");
+    is_file(CONF_PATH . 'config.php') || file_put_contents(CONF_PATH . 'config.php', "<?php\nreturn array(\n\t//'配置项'=>'配置值'\n);\n?>");
     is_dir(VIEW_PATH) || mkdir(VIEW_PATH, 0777);    //项目试图目录
 }
 
