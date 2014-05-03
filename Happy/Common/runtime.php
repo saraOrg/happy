@@ -11,11 +11,9 @@
  * @dateTime 2014-5-2 22:59:52
  * ================================================
  */
-
 /**
  * 项目目录创建和初始化
  */
-
 if (!is_dir(COMMON_PATH)) {
     build_app_dir();
 } else {
@@ -34,6 +32,12 @@ function check_runtime() {
     is_dir(LOG_PATH) || mkdir(LOG_PATH, 0777);
     is_dir(DATA_PATH) || mkdir(DATA_PATH, 0777);
     is_dir(TEMP_PATH) || mkdir(TEMP_PATH, 0777);
+    //载入核心文件
+    $files = include COMMON_PATH . 'files.php';
+    foreach ($files as $file) {
+        echo $file . '<br/>';
+        require $file;
+    }
     return true;
 }
 
