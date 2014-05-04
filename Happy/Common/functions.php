@@ -94,9 +94,11 @@ function get_instance($class = '', $method = '', $args = array()) {
     if (isset($_cacheObj[$class])) {
         return $_cacheObj[$class];
     }
-    if ($method === '' || !method_exists($class, $method)) {
-        echo 'ss';
+    if ($method === '') {
         return $_cacheObj[$class] = new $class;
+    }
+    if (!method_exists($class, $method)) {
+        error('Class ' . $class . ' 没有 ' . $method . ' 这个方法');
     }
     if (empty($args)) {
        return call_user_func(array(new $class, $method));
