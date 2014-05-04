@@ -23,8 +23,7 @@ const HAPPY_VERSION = '0.01';
  */
 define('ROOT_PATH', dirname(filter_input(INPUT_SERVER, 'SCRIPT_FILENAME')) . '/');   //根目录
 define('HAPPY_PATH', __DIR__ . '/');   //框架目录
-defined('APP_NAME') || define('APP_NAME', 'Home');  //项目名称
-defined('APP_PATH') || define('APP_PATH', dirname(filter_input(INPUT_SERVER, 'SCRIPT_FILENAME')) . '/');  //项目目录
+defined('APP_PATH') || define('APP_PATH', dirname(filter_input(INPUT_SERVER, 'SCRIPT_FILENAME')) . '/Application/');  //应用目录
 define('CORE_PATH', HAPPY_PATH . 'Libs/Bin/');  //框架核心目录
 define('ETC_PATH', HAPPY_PATH . 'Libs/Etc/');   //框架配置文件目录
 define('RUNTIME_PATH', ROOT_PATH . 'Runtime/');  //运行时目录
