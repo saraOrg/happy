@@ -16,7 +16,7 @@ function run_time($start, $end = '', $decimal = 3) {
 run_time('start');
 
 //版本信息
-const HAPPY_VERSION = '0.01';
+        const HAPPY_VERSION = '0.01';
 
 /**
  * 系统常量定义

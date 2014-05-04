@@ -28,7 +28,7 @@ class Debug {
      */
     public static function show() {
         self::$debug[] = '页面运行时间 ' . run_time('start', 'end') . ' 秒';
-        foreach (array_reverse(self::$debug) as $info) {
+        foreach (self::$debug as $info) {
             echo $info . '<br/>';
         }
     }

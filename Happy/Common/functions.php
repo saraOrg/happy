@@ -85,3 +85,17 @@ function config($key = null, $value = null) {
     }
     return false;
 }
+
+function get_instance($class = '', $method = '', $args = array()) {
+    static $_cacheObj = array();
+    if ($class === '') {
+        return null;
+    }
+    if (isset($_cacheObj[$class])) {
+        return $_cacheObj[$class];
+    }
+    if ($method === '' || !method_exists($class, $method)) {
+        return $_cacheObj[$class] = new $class;
+    }
+    $_cacheObj[$class] = call_user_func_array(array($class, $method), $args);
+}
