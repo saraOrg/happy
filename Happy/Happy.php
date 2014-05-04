@@ -39,4 +39,5 @@ if (file_exists(TEMP_PATH . '~rumetime.php')) {
     require HAPPY_PATH . 'Common/runtime.php';
 }
 
+load_file(CORE_PATH . 'Happy.class.php');   //加载框架核心类文件
 Happy::start(); //框架初始化开始

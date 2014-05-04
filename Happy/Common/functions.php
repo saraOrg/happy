@@ -35,9 +35,9 @@ function load_file($file = '') {
     if ($file !== '') {
         if (file_exists($file)) {
             require $file;
-            debug::msg('加载文件 ' . $file . ' 成功');
+            debug::msg('加载文件 ' . realpath($file) . ' 成功');
         } else {
-            debug::msg('文件 ' . $file . ' 不存在，载入失败');
+            debug::msg('文件 ' . realpath($file) . ' 不存在，载入失败');
         }
     }
 }
@@ -95,7 +95,11 @@ function get_instance($class = '', $method = '', $args = array()) {
         return $_cacheObj[$class];
     }
     if ($method === '' || !method_exists($class, $method)) {
+        echo 'ss';
         return $_cacheObj[$class] = new $class;
     }
-    $_cacheObj[$class] = call_user_func_array(array($class, $method), $args);
+    if (empty($args)) {
+       return call_user_func(array(new $class, $method));
+    }
+    return call_user_func_array(array(new $class, $method), array($args));
 }

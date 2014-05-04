@@ -13,5 +13,5 @@
  */
 return array(
     HAPPY_PATH . 'Common/functions.php', //项目底层函数库
-    CORE_PATH . 'Happy.class.php'    //框架核心类
+    CORE_PATH . 'debug.class.php'    //框架调试类
 );
