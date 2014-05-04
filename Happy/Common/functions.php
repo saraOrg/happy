@@ -86,6 +86,14 @@ function config($key = null, $value = null) {
     return false;
 }
 
+/**
+ * 获得对象实例
+ * @staticvar array $_cacheObj
+ * @param type $class
+ * @param type $method
+ * @param type $args
+ * @return null|array
+ */
 function get_instance($class = '', $method = '', $args = array()) {
     static $_cacheObj = array();
     if ($class === '') {
@@ -101,7 +109,7 @@ function get_instance($class = '', $method = '', $args = array()) {
         error('Class ' . $class . ' 没有 ' . $method . ' 这个方法');
     }
     if (empty($args)) {
-       return call_user_func(array(new $class, $method));
+        return call_user_func(array(new $class, $method));
     }
     return call_user_func_array(array(new $class, $method), array($args));
 }
