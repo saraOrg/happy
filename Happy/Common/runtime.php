@@ -14,24 +14,23 @@
 /**
  * 项目目录创建和初始化
  */
-//载入核心文件
+//加载核心文件
 $files = require HAPPY_PATH . 'Common/files.php';
 foreach ($files as $file) {
     require $file;
 }
 check_runtime();    //检查运行环境
-config(require ETC_PATH . 'config.php');   //加载框架底层配置
+config(require ETC_PATH . 'config.php');                //加载框架底层配置
 
-define('MODULE_NAME', getModuleName());
-define('CONTROLLER_NAME', getControllerName());
-define('ACTION_NAME', getActionName());
-
-define('COMMON_PATH', APP_PATH . 'Common/');
-define('MODULE_PATH', APP_PATH . MODULE_NAME . '/');
-define('CONTROLLER_PATH', MODULE_PATH . 'Controller/');
-define('MODEL_PATH', MODULE_PATH . 'Model/');
-define('CONF_PATH', MODULE_PATH . 'Conf/');
-define('VIEW_PATH', MODULE_PATH . 'View/');
+define('MODULE_NAME', getModuleName());                 //当前模块名称
+define('CONTROLLER_NAME', getControllerName());         //当前控制器名称
+define('ACTION_NAME', getActionName());                 //当前方法名称
+define('COMMON_PATH', APP_PATH . 'Common/');            //公共模块目录
+define('MODULE_PATH', APP_PATH . MODULE_NAME . '/');    //当前模块目录
+define('CONTROLLER_PATH', MODULE_PATH . 'Controller/'); //当前控制器目录
+define('MODEL_PATH', MODULE_PATH . 'Model/');           //当前模型目录
+define('CONF_PATH', MODULE_PATH . 'Conf/');             //当前配置文件目录
+define('VIEW_PATH', MODULE_PATH . 'View/');             //当前视图目录
 
 /**
  * 检查缓存目录(Runtime) 如果不存在则自动创建
