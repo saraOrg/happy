@@ -23,9 +23,26 @@ function p($arr) {
  * 错误信息输出
  */
 function error($msg) {
-    $msg = '<div style="width:500px;height:100px;border:solid 1px #333;background:#f2f2f2;color:red;padding:10px;position:absolute;top:20%;">'
-            . $msg . '</div>';
-    exit($msg);
+    if (config('APP_DEBUG') !== true) {
+        $msg = '<div style="width:500px;height:100px;border:solid 1px #333;background:#f2f2f2;padding:10px;position:absolute;top:20%;"><h1>出错啦:(</h1></div>';
+        exit($msg);
+    }
+    $e = array('title' => '', 'info' => '');
+    if (is_string($msg)) {
+        $e['title'] = $msg;
+        $e['info'] = '<ol  class="linenums">';
+        foreach (debug_backtrace() as $value) {
+            $e['info'] .= '<li><span>';
+            $e['info'] .= isset($value['file']) ? $value['file'] : '';
+            $e['info'] .= isset($value['line']) ? ' [' . $value['line'] . '] ' : '';
+            $e['info'] .= isset($value['function']) ? $value['function'] : '';
+            $e['info'] .= '<span></li>';
+        }
+        $e['info'] .= '</ol>';
+    } else {
+        $e = $msg;
+    }
+    include config('ERROR_TPL');
 }
 
 /**
