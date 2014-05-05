@@ -32,7 +32,10 @@ class Happy {
     public static function autoload($class) {
         load_file(CORE_PATH . $class . '.class.php');
     }
-
+    
+    /**
+     *  自定义错误处理
+     * /
     public static function error($errno, $errstr, $errfile, $errline) {
         switch ($errno) {
             case E_USER_ERROR:
