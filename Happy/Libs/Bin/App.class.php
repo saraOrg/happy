@@ -26,7 +26,9 @@ class App {
      */
     public static function init() {
         self::config(); //初始化配置
-        self::build_app_dir();  //初始化应用目录
+        if (MODULE_NAME === config('DEFAULT_MODULE')) {
+            self::build_app_dir();  //初始化应用目录
+        }
     }
 
     /**
@@ -34,8 +36,7 @@ class App {
      */
     public static function exec() {
         load_file(CORE_PATH . 'Controller.class.php'); //加载底层控制器
-        load_file(CONTROLLER_PATH . CONTROLLER_NAME . 'Controller.class.php');
-        get_instance(CONTROLLER_NAME . 'Controller', ACTION_NAME);  //执行默认方法
+        controller(CONTROLLER_NAME, ACTION_NAME);  //执行默认方法
     }
 
     /**
