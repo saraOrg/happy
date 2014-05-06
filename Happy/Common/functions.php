@@ -30,7 +30,7 @@ function error($msg) {
     $e = array('title' => '', 'info' => '');
     if (is_string($msg)) {
         $e['title'] = $msg;
-        $e['info'] = '<ol  class="linenums">';
+        $e['info']  = '<ol  class="linenums">';
         foreach (debug_backtrace() as $value) {
             $e['info'] .= '<li><span>';
             $e['info'] .= isset($value['file']) ? $value['file'] : '';
@@ -43,6 +43,7 @@ function error($msg) {
         $e = $msg;
     }
     include config('ERROR_TPL');
+    exit;
 }
 
 /**
@@ -50,11 +51,15 @@ function error($msg) {
  */
 function load_file($file = '') {
     if ($file !== '') {
+        static $_files = array();
         if (file_exists($file)) {
-            require $file;
-            debug::msg('加载文件 ' . realpath($file) . ' 成功');
+            if (!isset($_files[$file])) {
+                 require $file;
+                 $_files[$file] = $file;
+            }
+            debug::msg('加载文件 ' . realpath($_files[$file]) . ' 成功');
         } else {
-            debug::msg('文件 ' . realpath($file) . ' 不存在，载入失败');
+            error('文件 ' . $file . ' 不存在');
         }
     }
 }
@@ -129,4 +134,34 @@ function get_instance($class = '', $method = '', $args = array()) {
         return call_user_func(array(new $class, $method));
     }
     return call_user_func_array(array(new $class, $method), array($args));
+}
+
+/**
+ * 实例化控制器
+ * @staticvar array $_controller
+ * @param string $name
+ * @param type $method
+ * @return \name
+ */
+function controller($name, $method = null) {
+    if (!is_dir(MODULE_PATH)) {
+        error('模块' . MODULE_NAME . '不存在');
+    }
+    if (!file_exists(CONTROLLER_PATH . $name . 'Controller.class.php')) {
+        error('控制器' . $name . '不存在');
+    }
+    static $_controller = array();
+    $path               = CONTROLLER_PATH . $name . 'Controller.class.php';
+    load_file($path);
+    $name .= 'Controller';
+    if (!isset($_controller[$name])) {
+        $_controller[$name] = new $name;
+    }
+    if (is_null($method) || $method === '') {
+        return $_controller[$name];
+    }
+    if (!method_exists($_controller[$name], $method)) {
+        error('方法' . $method . '不存在');
+    }
+    return $_controller[$name]->$method();
 }
