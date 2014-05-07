@@ -11,26 +11,29 @@
  * @dateTime 2014-5-3 15:13:43
  * ================================================
  */
-
 class Debug {
-    
+
     static $debug = array();    //调试信息
-    
+
     /**
      * 记录调试信息
      */
+
     public static function msg($info) {
         self::$debug[] = $info;
     }
-    
+
     /**
      * 输出调试信息
      */
     public static function show() {
-        self::$debug[] = '页面运行时间 ' . run_time('start', 'end') . ' 秒';
-        foreach (self::$debug as $info) {
-            echo $info . '<br/>';
-        }
-    }
-}
 
+        foreach (self::$debug as $key => $info) {
+            echo '[' . $key . '] ' . $info . '<br/>';
+        }
+        echo '<p>页面运行时间 ' . run_time('start', 'end') . '</p>';
+        echo '<p>页面内存峰值 ' . run_memory('start', 'end') . '</p>';
+        echo '<p>总共加载文件数 ' . load_file() . ' 个</p>';
+    }
+
+}
