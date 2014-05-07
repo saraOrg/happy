@@ -29,16 +29,13 @@ function error($msg) {
     }
     $e = array('title' => '', 'info' => '');
     if (is_string($msg)) {
-        $e['title'] = $msg;
-        $e['info']  = '<ol  class="linenums">';
-        foreach (debug_backtrace() as $value) {
-            $e['info'] .= '<li><span>';
-            $e['info'] .= isset($value['file']) ? $value['file'] : '';
-            $e['info'] .= isset($value['line']) ? ' [' . $value['line'] . '] ' : '';
-            $e['info'] .= isset($value['function']) ? $value['function'] : '';
-            $e['info'] .= '<span></li>';
-        }
-        $e['info'] .= '</ol>';
+        $trace        = debug_backtrace();
+        $e['file']    = $trace[0]['file'];
+        $e['line']    = $trace[0]['line'];
+        $e['message']   = $msg;
+        ob_start();
+        debug_print_backtrace();
+        $e['info']    = nl2br(ob_get_clean());
     } else {
         $e = $msg;
     }
@@ -54,8 +51,8 @@ function load_file($file = '') {
         static $_files = array();
         if (file_exists($file)) {
             if (!isset($_files[$file])) {
-                 require $file;
-                 $_files[$file] = $file;
+                require $file;
+                $_files[$file] = $file;
             }
             debug::msg('加载文件 ' . realpath($_files[$file]) . ' 成功');
         } else {
