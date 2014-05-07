@@ -23,8 +23,8 @@ function run_memory($start, $end = '') {
     isset($_memory[$start]) || $_memory[$start] = memory_get_peak_usage();
 }
 
-run_time('start');  //初始化运行时间
-run_memory('start');
+run_time('start');      //初始化运行时间
+run_memory('start');    //初始化运行内存
 
 //版本信息
 define('HAPPY_VERSION', '0.01');
