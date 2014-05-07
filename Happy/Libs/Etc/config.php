@@ -22,5 +22,6 @@ return array(
     'VAR_CONTROLLER'     => 'c', //默认控制器变量,
     'VAR_ACTION'         => 'a', //默认方法变量
     'ERROR_TPL'          => './Happy/Tpl/error.php', //默认错误信息模版
+    'DEFAULT_TIMEZONE'   => 'Asia/Shanghai', //默认时区
 );
 
