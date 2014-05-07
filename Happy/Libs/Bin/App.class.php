@@ -25,8 +25,8 @@ class App {
      * 项目初始化
      */
     public static function init() {
-        self::config(); //初始化配置
-        if (MODULE_NAME === config('DEFAULT_MODULE')) {
+        self::config();                 //初始化配置
+        if (!is_dir(APP_PATH)) {
             self::build_app_dir();  //初始化应用目录
         }
     }
