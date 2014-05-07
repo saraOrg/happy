@@ -42,17 +42,18 @@
     </style>
     <body>
         <div id="debug-info">
+            <h1><?php echo strip_tags($e['message']);?></h1>
             <?php if (isset($e['title'])) { ?>
                 <fieldset>
-                    <legend>ERROR</legend>
+                    <legend>错误位置</legend>
                     <div class='error'>
-                        <?php echo $e['title']; ?>
+                        <p>FILE: <?php echo $e['file'] ;?> &#12288;LINE: <?php echo $e['line'];?></p>
                     </div>
                 </fieldset>
             <?php } ?>
             <?php if (isset($e['info'])) { ?>
                 <fieldset>
-                    <legend>INFO</legend>
+                    <legend>TRACE</legend>
                     <?php echo $e['info']; ?>
                 </fieldset>
             <?php } ?>
