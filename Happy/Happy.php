@@ -3,20 +3,31 @@
 /**
  * 框架核心文件
  */
+//运行时间
 function run_time($start, $end = '', $decimal = 3) {
     static $_time = array();
     if ('' !== $end) {
         $_time[$end] = microtime(true);
-        return number_format($_time[$end] - $_time[$start], $decimal);
+        return number_format($_time[$end] - $_time[$start], $decimal) . ' 秒';
     }
     isset($_time[$start]) || $_time[$start] = \microtime(true);
 }
 
-//初始化运行时间
-run_time('start');
+//运行时间
+function run_memory($start, $end = '') {
+    static $_memory = array();
+    if ('' !== $end) {
+        $_memory[$end] = memory_get_peak_usage();
+        return number_format(max($_memory[$end], $_memory[$start]) / 1024) . ' KB';
+    }
+    isset($_memory[$start]) || $_memory[$start] = memory_get_peak_usage();
+}
+
+run_time('start');  //初始化运行时间
+run_memory('start');
 
 //版本信息
-        const HAPPY_VERSION = '0.01';
+define('HAPPY_VERSION', '0.01');
 
 /**
  * 系统常量定义
