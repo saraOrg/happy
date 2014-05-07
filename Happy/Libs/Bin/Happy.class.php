@@ -19,6 +19,7 @@ class Happy {
     public static function start() {
         set_error_handler(array(__CLASS__, 'error'));           //注册自动处理错误方法
         spl_autoload_register(array(__CLASS__, 'autoload'));    //注册自动加载类的方法
+        function_exists('date_default_timezone_set') && date_default_timezone_set(config('DEFAULT_TIMEZONE'));  //设置默认时区
         App::run();
         if (config('APP_DEBUG') === true) {
             debug::show();
@@ -38,11 +39,15 @@ class Happy {
      */
     public static function error($errno, $errstr, $errfile, $errline) {
         switch ($errno) {
+            case E_ERROR:
             case E_USER_ERROR:
-                error($errstr . $errfile . '[' . $errline . ']');
-                exit;
-            default:
-                break;
+                error('EOOER: ' . $errstr . ' ' . $errfile . '[' . $errline . ']');
+            case E_WARNING:
+            case E_USER_WARNING:
+                error('WARING: ' . $errstr . ' ' . $errfile . '[' . $errline . ']');
+            case E_NOTICE:
+            case E_USER_NOTICE:
+                notice('NOTICE: ' . $errstr . ' ' . $errfile . '[' . $errline . ']');
         }
     }
 
