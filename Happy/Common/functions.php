@@ -47,8 +47,8 @@ function error($msg) {
  * 载入文件
  */
 function load_file($file = '') {
+    static $_files = array();
     if ($file !== '') {
-        static $_files = array();
         if (file_exists($file)) {
             if (!isset($_files[$file])) {
                 require $file;
@@ -58,6 +58,8 @@ function load_file($file = '') {
         } else {
             error('文件 ' . $file . ' 不存在');
         }
+    } else {
+        return count($_files);
     }
 }
 
