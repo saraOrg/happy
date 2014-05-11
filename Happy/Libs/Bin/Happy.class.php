@@ -47,7 +47,7 @@ class Happy {
                 error('WARING: ' . $errstr . ' ' . $errfile . '[' . $errline . ']');
             case E_NOTICE:
             case E_USER_NOTICE:
-                notice('NOTICE: ' . $errstr . ' ' . $errfile . '[' . $errline . ']');
+                notice(func_get_args());
         }
     }
 
