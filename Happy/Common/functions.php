@@ -32,7 +32,7 @@ function error($msg) {
         $trace        = debug_backtrace();
         $e['file']    = $trace[0]['file'];
         $e['line']    = $trace[0]['line'];
-        $e['message']   = $msg;
+        $e['message'] = $msg;
         ob_start();
         debug_print_backtrace();
         $e['info']    = nl2br(ob_get_clean());
@@ -41,6 +41,27 @@ function error($msg) {
     }
     include config('ERROR_TPL');
     exit;
+}
+
+/**
+ * 注意信息输出
+ */
+function notice($args) {
+    $content = $args[1];
+    $file    = $args[2];
+    $line    = $args[3];
+    $time = run_time('start', 'notice_end');
+    $memory = number_format(memory_get_usage() / 1024) . ' KB';
+    $str     = <<<NOTICE
+    <h1 style="font-size:14px;color:#000;background:#ccc;padding:5px;width:888px;">NOTICE: $content</h1>
+    <div style="padding:5px;background:#f2f2f2;color:#000;width:888px;">
+        <p>FILE: $file</p>
+        <p>LINE: $line</p>
+        <p>TIME: $time</p>
+        <p>MEMORY: $memory</p>
+     </div>
+NOTICE;
+    echo $str;
 }
 
 /**
