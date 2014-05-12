@@ -19,6 +19,7 @@ class Happy {
     public static function start() {
         set_error_handler(array(__CLASS__, 'error'));           //注册自动处理错误方法
         spl_autoload_register(array(__CLASS__, 'autoload'));    //注册自动加载类的方法
+        set_exception_handler(array(__CLASS__, 'exception'));   //注册自动处理异常的方法
         function_exists('date_default_timezone_set') && date_default_timezone_set(config('DEFAULT_TIMEZONE'));  //设置默认时区
         App::run();
         if (config('APP_DEBUG') === true) {
@@ -49,6 +50,13 @@ class Happy {
             case E_USER_NOTICE:
                 notice(func_get_args());
         }
+    }
+    
+    /**
+     * 自定义异常处理
+     */
+    public static function exception($e) {
+        error($e->show());
     }
 
 }
