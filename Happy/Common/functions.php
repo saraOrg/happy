@@ -60,15 +60,14 @@ function notice($args) {
     $line    = $args[3];
     $time    = run_time('start', 'notice_end');
     $memory  = number_format(memory_get_usage() / 1024) . ' KB';
-    $str     = <<<NOTICE
+    $str     = '
     <h1 style="font-size:14px;color:#000;background:#ccc;padding:5px;width:888px;">NOTICE: $content</h1>
     <div style="padding:5px;background:#f2f2f2;color:#000;width:888px;">
         <p>FILE: $file</p>
         <p>LINE: $line</p>
         <p>TIME: $time</p>
         <p>MEMORY: $memory</p>
-     </div>
-NOTICE;
+     </div>';
     echo $str;
 }
 
@@ -83,9 +82,9 @@ function load_file($file = '') {
                 require $file;
                 $_files[$file] = $file;
             }
-            debug::msg('加载文件 ' . realpath($_files[$file]) . ' 成功');
+            debug::msg('加载文件' . realpath($_files[$file]) . '成功');
         } else {
-            error('文件 ' . $file . ' 不存在');
+            error('文件' . $file . '不存在');
         }
     } else {
         return count($_files);

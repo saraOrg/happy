@@ -51,7 +51,7 @@ function complie_file($files) {
         //过滤PHP语法的开始和结合苏标签
         $content = str_replace(array('<?php', '?>'), array('', ''), $content);
         //过滤多行注释，单行注释，
-        $pattern = array('/\/\*.*?\*\//is', '/\/\/.*?[\r\n]/is');
+        $pattern = array('/\/\*.*?\*\//is', '/\/\/.*?[\r\n]/is', '/(?=\W)\s*?(?=\W)/is');
         $content = preg_replace($pattern, '', $content);
         $data .= $content;
     }
