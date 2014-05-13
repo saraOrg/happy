@@ -21,16 +21,7 @@ foreach ($files as $file) {
 }
 check_runtime();    //检查运行环境
 config(require ETC_PATH . 'config.php');                //加载框架底层配置
-
-define('MODULE_NAME', getModuleName());                 //当前模块名称
-define('CONTROLLER_NAME', getControllerName());         //当前控制器名称
-define('ACTION_NAME', getActionName());                 //当前方法名称
-define('COMMON_PATH', APP_PATH . 'Common/');            //公共模块目录
-define('MODULE_PATH', APP_PATH . MODULE_NAME . '/');    //当前模块目录
-define('CONTROLLER_PATH', MODULE_PATH . 'Controller/'); //当前控制器目录
-define('MODEL_PATH', MODULE_PATH . 'Model/');           //当前模型目录
-define('CONF_PATH', MODULE_PATH . 'Conf/');             //当前配置文件目录
-define('VIEW_PATH', MODULE_PATH . 'View/');             //当前视图目录
+complie_file($files);                                   //生成编译文件
 
 /**
  * 检查缓存目录(Runtime) 如果不存在则自动创建
@@ -51,31 +42,19 @@ function check_runtime() {
 }
 
 /**
- * 获取当前模块名称
+ * 生成编译文件
  */
-function getModuleName() {
-    if (filter_input(INPUT_GET, config('VAR_MODULE')) && filter_input(INPUT_GET, config('VAR_MODULE')) !== '') {
-        return filter_input(INPUT_GET, config('VAR_MODULE'));
+function complie_file($files) {
+    $data = '<?php config(require ETC_PATH . "config.php");';
+    foreach ($files as $file) {
+        $content = file_get_contents($file);
+        //过滤PHP语法的开始和结合苏标签
+        $content = str_replace(array('<?php', '?>'), array('', ''), $content);
+        //过滤多行注释，单行注释，
+        $pattern = array('/\/\*.*?\*\//is', '/\/\/.*?[\r\n]/is');
+        $content = preg_replace($pattern, '', $content);
+        $data .= $content;
     }
-    return config('DEFAULT_MODULE');
-}
-
-/**
- * 获取当前控制器名称
- */
-function getControllerName() {
-    if (filter_input(INPUT_GET, config('VAR_CONTROLLER')) && filter_input(INPUT_GET, config('VAR_CONTROLLER')) !== '') {
-        return filter_input(INPUT_GET, config('VAR_CONTROLLER'));
-    }
-    return config('DEFAULT_CONTROLLER');
-}
-
-/**
- * 获取当前方法名称
- */
-function getActionName() {
-    if (filter_input(INPUT_GET, config('VAR_ACTION')) && filter_input(INPUT_GET, config('VAR_ACTION')) !== '') {
-        return filter_input(INPUT_GET, config('VAR_ACTION'));
-    }
-    return config('DEFAULT_ACTION');
+    $data = $data . ' ?>';
+    file_put_contents(TEMP_PATH . '~runtime.php', $data);
 }

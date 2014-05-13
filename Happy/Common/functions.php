@@ -193,3 +193,33 @@ function controller($name, $method = null) {
     }
     return $_controller[$name]->$method();
 }
+
+/**
+ * 获取当前模块名称
+ */
+function getModuleName() {
+    if (filter_input(INPUT_GET, config('VAR_MODULE')) && filter_input(INPUT_GET, config('VAR_MODULE')) !== '') {
+        return filter_input(INPUT_GET, config('VAR_MODULE'));
+    }
+    return config('DEFAULT_MODULE');
+}
+
+/**
+ * 获取当前控制器名称
+ */
+function getControllerName() {
+    if (filter_input(INPUT_GET, config('VAR_CONTROLLER')) && filter_input(INPUT_GET, config('VAR_CONTROLLER')) !== '') {
+        return filter_input(INPUT_GET, config('VAR_CONTROLLER'));
+    }
+    return config('DEFAULT_CONTROLLER');
+}
+
+/**
+ * 获取当前方法名称
+ */
+function getActionName() {
+    if (filter_input(INPUT_GET, config('VAR_ACTION')) && filter_input(INPUT_GET, config('VAR_ACTION')) !== '') {
+        return filter_input(INPUT_GET, config('VAR_ACTION'));
+    }
+    return config('DEFAULT_ACTION');
+}
