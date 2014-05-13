@@ -44,8 +44,8 @@ define('HTML_PATH', RUNTIME_PATH . 'Html/');    //应用静态目录
 define('DATA_PATH', RUNTIME_PATH . 'Data/');    //应用数据目录
 define('CACHE_PATH', RUNTIME_PATH . 'Cache/');  //应用模版编译目录
 //加载运行时文件
-if (file_exists(TEMP_PATH . '~rumetime.php')) {
-    require TEMP_PATH . '~rumetime.php';
+if (file_exists(TEMP_PATH . '~runtime.php')) {
+    require TEMP_PATH . '~runtime.php';
 } else {
     require HAPPY_PATH . 'Common/runtime.php';
 }
