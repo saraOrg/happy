@@ -29,11 +29,11 @@ class Debug {
     public static function show() {
 
         foreach (self::$debug as $key => $info) {
-            echo '[' . $key . '] ' . $info . '<br/>';
+            echo $info . '<br/>';
         }
-        echo '<p>页面运行时间 ' . run_time('start', 'end') . '</p>';
-        echo '<p>页面内存峰值 ' . run_memory('start', 'end') . '</p>';
-        echo '<p>总共加载文件数 ' . load_file() . ' 个</p>';
+        echo '<p>页面运行时间' . run_time('start', 'end') . '</p>';
+        echo '<p>页面内存峰值' . run_memory('start', 'end') . '</p>';
+        echo '<p>总共加载文件数<strong>' . load_file() . '</strong>个</p>';
     }
 
 }
