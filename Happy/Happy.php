@@ -8,7 +8,7 @@ function run_time($start, $end = '', $decimal = 3) {
     static $_time = array();
     if ('' !== $end) {
         $_time[$end] = microtime(true);
-        return number_format($_time[$end] - $_time[$start], $decimal) . ' 秒';
+        return '<strong>' . number_format($_time[$end] - $_time[$start], $decimal) . '</strong>秒';
     }
     isset($_time[$start]) || $_time[$start] = \microtime(true);
 }
@@ -18,7 +18,7 @@ function run_memory($start, $end = '') {
     static $_memory = array();
     if ('' !== $end) {
         $_memory[$end] = memory_get_peak_usage();
-        return number_format(max($_memory[$end], $_memory[$start]) / 1024) . ' KB';
+        return '<strong>' . number_format(max($_memory[$end], $_memory[$start]) / 1024) . '</strong>KB';
     }
     isset($_memory[$start]) || $_memory[$start] = memory_get_peak_usage();
 }
