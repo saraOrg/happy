@@ -25,6 +25,15 @@ class App {
      * 项目初始化
      */
     public static function init() {
+        define('MODULE_NAME', getModuleName());                 //当前模块名称
+        define('CONTROLLER_NAME', getControllerName());         //当前控制器名称
+        define('ACTION_NAME', getActionName());                 //当前方法名称
+        define('COMMON_PATH', APP_PATH . 'Common/');            //公共模块目录
+        define('MODULE_PATH', APP_PATH . MODULE_NAME . '/');    //当前模块目录
+        define('CONTROLLER_PATH', MODULE_PATH . 'Controller/'); //当前控制器目录
+        define('MODEL_PATH', MODULE_PATH . 'Model/');           //当前模型目录
+        define('CONF_PATH', MODULE_PATH . 'Conf/');             //当前配置文件目录
+        define('VIEW_PATH', MODULE_PATH . 'View/');             //当前视图目录
         self::config();                 //初始化配置
         if (!is_dir(APP_PATH)) {
             self::build_app_dir();  //初始化应用目录
