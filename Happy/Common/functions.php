@@ -61,12 +61,12 @@ function notice($args) {
     $time    = run_time('start', 'notice_end');
     $memory  = number_format(memory_get_usage() / 1024) . ' KB';
     $str     = '
-    <h1 style="font-size:14px;color:#000;background:#ccc;padding:5px;width:888px;">NOTICE: $content</h1>
+    <h1 style="font-size:14px;color:#000;background:#ccc;padding:5px;width:888px;">NOTICE: ' . $content . '</h1>
     <div style="padding:5px;background:#f2f2f2;color:#000;width:888px;">
-        <p>FILE: $file</p>
-        <p>LINE: $line</p>
-        <p>TIME: $time</p>
-        <p>MEMORY: $memory</p>
+        <p>FILE: ' . $file . '</p>
+        <p>LINE: ' . $line . '</p>
+        <p>TIME: ' . $time . '</p>
+        <p>MEMORY: ' . $memory . '</p>
      </div>';
     echo $str;
 }
@@ -221,4 +221,37 @@ function getActionName() {
         return filter_input(INPUT_GET, config('VAR_ACTION'));
     }
     return config('DEFAULT_ACTION');
+}
+
+/**
+ * 获取客户端IP地址
+ * @param type $type        获取IP地址类型 0 返回IP地址 1 返回IPV4地址数字
+ * @param type $advance     是否进行高级模式获取（有可能被伪装）
+ * @return array
+ */
+function get_client_ip($type = 0, $advance = false) {
+    static $ip = array();
+    if (isset($ip[$type])) {
+        return $ip[$type];
+    }
+    if ($advance === true) {
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+            $data = explode(',', filter_input(INPUT_SERVER, 'HTTP_X_FORWARDED_FOR'));
+            $pos  = array_search('unknown', $data);
+            if (false !== $pos) {
+                unset($data[$pos]);
+            }
+            $ip_addr = trim($data[0]);
+        } else if (isset($_SERVER['HTTP_CLIENT_IP'])) {
+            $ip_addr = \filter_input(INPUT_SERVER, 'HTTP_CLIENT_IP');
+        } else if (isset($_SERVER['REMOTE_ADDR'])) {
+            $ip_addr = \filter_input(INPUT_SERVER, 'REMOTE_ADDR');
+        }
+    } else {
+        $ip_addr = \filter_input(INPUT_SERVER, 'REMOTE_ADDR') ? : '0.0.0.0';
+    }
+    $ip[0] = $ip_addr;
+    $ipv4  = ($ip_addr === '0.0.0.0') ? 0 : sprintf("%u", ip2long($ip_addr));
+    $ip[1] = $ipv4;
+    return $ip[$type];
 }
