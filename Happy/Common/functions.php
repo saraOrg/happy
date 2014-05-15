@@ -36,8 +36,8 @@ function error($msg) {
         $e['info']    = '<ol class="linenums">';
         foreach (debug_backtrace() as $value) {
             $e['info'] .= '<li><span>';
-            isset($value['file']) && $e['info'] .= $value['file'] . ' ';
-            $e['info'] .= '<strong>';
+            isset($value['file']) && $e['info'] .= $value['file'];
+            $e['info'] .= '&nbsp;<strong>';
             isset($value['class']) && $e['info'] .= $value['class'];
             isset($value['type']) && $e['info'] .= $value['type'];
             isset($value['function']) && $e['info'] .= $value['function'] . '()</strong>';
