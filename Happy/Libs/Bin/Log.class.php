@@ -17,9 +17,10 @@ class Log {
     const EMERG        = 'EMERG';  // 严重错误: 导致系统崩溃无法使用
     const ALERT        = 'ALERT';  // 警戒性错误: 必须被立即修改的错误
     const CRIT         = 'CRIT';  // 临界值错误: 超过临界值的错误，例如一天24小时，而输入的是25小时这样
-    const ERR          = 'ERR';  // 一般错误: 一般性错误
-    const WARN         = 'WARN';  // 警告性错误: 需要发出警告的错误
+    const ERROR        = 'ERROR';  // 一般错误: 一般性错误
+    const WARNING      = 'WARNING';  // 警告性错误: 需要发出警告的错误
     const NOTICE       = 'NOTIC';  // 通知: 程序可以运行但是还不够完美的错误
+    const EXCEPTION    = 'EXCEPTION';  //异常信息
     const INFO         = 'INFO';  // 信息: 程序输出信息
     const DEBUG        = 'DEBUG';  // 调试: 调试信息
     const SQL          = 'SQL';  // SQL：SQL语句 注意只在调试模式开启时有效
@@ -29,14 +30,14 @@ class Log {
     const FILE         = 3;
     const SAPI         = 4;
     //记录日志的方式
-    const LOG_TYPE     = 'db'; //mongo/db...
+    const LOG_TYPE     = 'file'; //mongo/db...
     //日志文件大小
-    const LOG_MAX_SIZE = 100000;
+    const LOG_MAX_SIZE = 19880430;
 
     // 日志信息
     static $log    = array();
     // 日期格式
-    static $format = '[ c ]';
+    static $format = '[ Y-m-d H:i:s ]';
 
     /**
      * 记录日志，并会过滤未经设置的级别
@@ -44,9 +45,9 @@ class Log {
      * @param type $level   日志级别
      * @param type $record  是否强制记录，不过滤日志级别
      */
-    public static function record($message, $level = self::ERR, $record = false) {
-        if ($record || false !== stripos(config('LOG_LEVEL', $level))) {
-            self::$log[] = $level . ': ' . $message . '\r\n';
+    public static function record($message, $level = self::ERROR, $record = false) {
+        if ($record || in_array($level, config('LOG_LEVEL'))) {
+            self::$log[] = $level . ': ' . $message;
         }
     }
 
@@ -73,7 +74,7 @@ class Log {
             $destination = $destination ? : config('LOG_DEST');
             $extra       = $extra ? : config('LOG_EXTRA');
         }
-        $content = date(self::$format) . get_client_ip() . ' ' . filter_input(INPUT_SERVER, 'REQUEST_URI') . "\r\n" . implode('', self::$log) . "\r\n";
+        $content = date(self::$format) . ' [' . get_client_ip() . '] [' . filter_input(INPUT_SERVER, 'REQUEST_URI') . "] " . implode('', self::$log) . "\r\n";
         error_log($content, $type, $destination, $extra);
         //保存后清空日志缓存
         self::$log = array();
@@ -96,7 +97,7 @@ class Log {
                     'message'     => $message,
                     'level'       => $level,
                     'create_date' => time(),
-                    'create_by'   => session('user.login_name')
+                    'create_by'   => $_SESSION['user']['login_name'],
                 );
                 M('SysLog')->data($data)->add();
                 break;
@@ -122,8 +123,9 @@ class Log {
         if ($destination === '') {
             $destination = LOG_PATH . date('Ymd') . '.log';
         }
+        $logMaxSize = config('LOG_MAX_SIZE') ?: self::LOG_MAX_SIZE;
         //日志文件存在且大小超过了系统配置的大小，则备份重新生成
-        if (is_file($destination) && floor(self::LOG_MAX_SIZE) <= filesize($destination)) {
+        if (is_file($destination) && floor($logMaxSize) <= filesize($destination)) {
             rename($destination, dirname($destination) . '/' . time() . '-' . basename($destination));
         }
         //使用PHP系统函数记录

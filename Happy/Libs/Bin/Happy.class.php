@@ -25,6 +25,8 @@ class Happy {
         if (config('APP_DEBUG') === true) {
             debug::show();
         }
+        //记录日志
+        config('LOG_SWITCH') && Log::save();
     }
 
     /**
@@ -42,16 +44,19 @@ class Happy {
         switch ($errno) {
             case E_ERROR:
             case E_USER_ERROR:
-                error('EOOER: ' . $errstr . ' ' . $errfile . '[' . $errline . ']');
+                Log::write($errstr . ' ' . $errfile . '[' . $errline . ']', 'ERROR');
+                error('ERROR: ' . $errstr . ' ' . $errfile . '[' . $errline . ']');
             case E_WARNING:
             case E_USER_WARNING:
+                Log::record($errstr . ' ' . $errfile . '[' . $errline . ']', 'WARING');
                 error('WARING: ' . $errstr . ' ' . $errfile . '[' . $errline . ']');
             case E_NOTICE:
             case E_USER_NOTICE:
+                Log::record($errstr . ' ' . $errfile . '[' . $errline . ']', 'NOTICE');
                 notice(func_get_args());
         }
     }
-    
+
     /**
      * 自定义异常处理
      */

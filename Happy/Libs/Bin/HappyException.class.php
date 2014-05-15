@@ -25,7 +25,7 @@ class HappyException extends Exception {
      */
     public function show() {
         $e = array();
-        $e['message'] = 'Exception: ' . $this->getMessage();
+        $e['message'] = "Exception: " . $this->getMessage() . " <br/>" . $this->getFile() . '[' . $this->getLine() . ']';
         $e['info']    = '<ol class="linenums">';
         foreach ($this->getTrace() as $value) {
             $e['info'] .= '<li><span>';
@@ -37,6 +37,8 @@ class HappyException extends Exception {
             $e['info'] .= '</span></li>';
         }
         $e['info'] .= '</ol>';
+        $exception = strip_tags($e['message']); 
+        Log::write($exception, 'EXCEPTION');
         return $e;
     }
 }
