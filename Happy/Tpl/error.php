@@ -42,7 +42,7 @@
     </style>
     <body>
         <div id="debug-info">
-            <h2><?php echo strip_tags($e['message']);?></h2>
+            <h2><?php echo $e['message'];?></h2>
             <?php if (isset($e['info'])) { ?>
                 <fieldset>
                     <legend>TRACE</legend>
