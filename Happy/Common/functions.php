@@ -20,6 +20,14 @@ function p($arr) {
 }
 
 /**
+ * 快速格式化时间
+ */
+function toDate($time = null, $format = 'Y-m-d H:i:s') {
+    is_null($time) && $time = time();
+    return date($format, $time);
+}
+
+/**
  * 错误信息输出
  */
 function error($msg) {
