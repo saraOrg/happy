@@ -45,7 +45,7 @@ class App {
      */
     public static function exec() {
         load_file(CORE_PATH . 'Controller.class.php'); //加载底层控制器
-        $controller = controller(CONTROLLER_NAME, ACTION_NAME);  //执行默认方法
+        controller(CONTROLLER_NAME, ACTION_NAME);  //执行默认方法
     }
 
     /**
