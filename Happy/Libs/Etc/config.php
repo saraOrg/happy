@@ -26,5 +26,8 @@ return array(
     'LOG_SWITCH'         => true, //日志开关
     'LOG_LEVEL'          => array('SQL', 'NOTICE', 'WARING', 'ERROR', 'EMERG', 'EXCEPTION'), //日志级别
     'LOG_MAX_SIZE'       => 19880430, //日志上限值
+    'PATHINFO_DLI'       => '/', //pathinfo分隔符
+    'VAR_PATHINFO'       => 'pf', //兼容模式下pathinfo变量名
+    'URL_HTML_SUFFIX'    => '.html', //url伪静态后缀名
 );
 
