@@ -205,8 +205,8 @@ function controller($name, $method = null) {
  * 获取当前模块名称
  */
 function getModuleName() {
-    if (filter_input(INPUT_GET, config('VAR_MODULE')) && filter_input(INPUT_GET, config('VAR_MODULE')) !== '') {
-        return filter_input(INPUT_GET, config('VAR_MODULE'));
+    if (isset($_GET[config('VAR_MODULE')]) && $_GET[config('VAR_MODULE')] !== '') {
+        return $_GET[config('VAR_MODULE')];
     }
     return config('DEFAULT_MODULE');
 }
@@ -215,8 +215,8 @@ function getModuleName() {
  * 获取当前控制器名称
  */
 function getControllerName() {
-    if (filter_input(INPUT_GET, config('VAR_CONTROLLER')) && filter_input(INPUT_GET, config('VAR_CONTROLLER')) !== '') {
-        return filter_input(INPUT_GET, config('VAR_CONTROLLER'));
+    if (isset($_GET[config('VAR_CONTROLLER')]) && $_GET[config('VAR_CONTROLLER')] !== '') {
+        return $_GET[config('VAR_CONTROLLER')];
     }
     return config('DEFAULT_CONTROLLER');
 }
@@ -225,8 +225,8 @@ function getControllerName() {
  * 获取当前方法名称
  */
 function getActionName() {
-    if (filter_input(INPUT_GET, config('VAR_ACTION')) && filter_input(INPUT_GET, config('VAR_ACTION')) !== '') {
-        return filter_input(INPUT_GET, config('VAR_ACTION'));
+    if (isset($_GET[config('VAR_ACTION')]) && $_GET[config('VAR_ACTION')] !== '') {
+        return $_GET[config('VAR_ACTION')];
     }
     return config('DEFAULT_ACTION');
 }
