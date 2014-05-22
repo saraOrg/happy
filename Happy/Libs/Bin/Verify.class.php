@@ -26,7 +26,7 @@ class Verify {
     //长度(位数)
     private $length  = 4;
     //字体文件
-    private $font;
+    private $font    = '1.ttf';
     //字体大小
     private $size    = 16;
     //验证码值
@@ -38,14 +38,14 @@ class Verify {
      * 构造函数
      */
     public function __construct($config = array()) {
-        $this->font = CORE_PATH .  'Verify/ttf' . DIRECTORY_SEPARATOR . '1.ttf';
         if (!empty($config)) {
             foreach (array_keys(get_class_vars(__CLASS__)) as $attr) {
                 isset($config[$attr]) && $this->$attr = $config[$attr];
             }
         }
-        $this->width = $this->length * $this->size;
-        $this->height = $this->width/$this->length * 1.5;
+        $this->font   = CORE_PATH . 'Verify/ttf' . DIRECTORY_SEPARATOR . $this->font;
+        $this->width  = $this->length * $this->size;
+        $this->height = $this->width / $this->length * 1.5;
     }
 
     /**
@@ -77,6 +77,8 @@ class Verify {
             }
             $this->verify .= $chr;
         }
+        //验证码写入session
+        $_SESSION['happy']['verify'] = md5($this->verify);
     }
 
     /**
@@ -102,11 +104,11 @@ class Verify {
         $color       = imagecolorallocate($this->image, $rgb['red'], $rgb['green'], $rgb['blue']);
         imagefill($this->image, 0, 0, $color);
     }
-    
+
     private function _createDisturb() {
         $color = $this->_getRgb($this->color);
         $color = imagecolorallocate($this->image, $color['red'], $color['green'], $color['blue']);
-        for ($i=0; $i<$this->width; $i++) {
+        for ($i = 0; $i < $this->width; $i++) {
             imagesetpixel($this->image, mt_rand(0, $this->width), mt_rand(0, $this->height), $color);
 //            $arc = pi() * ($i * $this->width/180/180);
 //            imagesetpixel($this->image, $i, sin($arc)*50, $color);
@@ -121,18 +123,18 @@ class Verify {
             imageline($this->image, $i * 5, 0, $i * 6, $this->height, $color);
         }
     }
-    
+
     /**
      * 绘制验证码
      */
     private function _drawText() {
-        $i = '';
+        $i     = '';
         $rgb   = $this->_getRgb($this->color);
         $color = imagecolorallocate($this->image, $rgb['red'], $rgb['green'], $rgb['blue']);
         $this->_createVerify();
         for ($i = 0; $i < $this->length; $i++) {
-            $x = floor($this->width / $this->length * $i)+2;
-            imagettftext($this->image, $this->size, mt_rand(-20, 20), $x, $this->height/1.3, $color, $this->font, $this->verify[$i]);
+            $x = floor($this->width / $this->length * $i) + 2;
+            imagettftext($this->image, $this->size, mt_rand(-20, 20), $x, $this->height / 1.3, $color, $this->font, $this->verify[$i]);
         }
     }
 
@@ -162,6 +164,26 @@ class Verify {
         }
         imagedestroy($this->image);
         trigger_error('请确保GD库函数是否正常', E_USER_WARNING);
+    }
+
+    /**
+     * 返回session中保存的验证码
+     * @return type
+     */
+    private function _getVerify() {
+        return $_SESSION['happy']['verify'];
+    }
+
+    /**
+     * 校验验证码是否和session中的一致
+     * @param type $verify
+     * @return boolean
+     */
+    public function validate($verify = null) {
+        if (is_null($verify)) {
+            return false;
+        }
+        return md5($verify) === $this->_getVerify();
     }
 
 }
