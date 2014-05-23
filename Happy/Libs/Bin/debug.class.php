@@ -32,8 +32,9 @@ class Debug {
         $style .= '</style>';
         $javascript = '<script type="text/javascript" language="javascript">';
         $javascript .= 'var trace = document.getElementById("trace"), close = document.getElementsByClassName("close")[0];tips = document.getElementById("tips");';
-        $javascript .= 'close.onclick = function() {trace.style.display = "none";tips.style.display = "block";};';
-        $javascript .= 'tips.onclick = function() {trace.style.display = "block";this.style.display = "none";};';
+        $javascript .= 'close.onclick = function() {trace.style.display = "none";tips.style.display = "block";document.cookie="happy_show_page_trace=no";};';
+        $javascript .= 'tips.onclick = function() {trace.style.display = "block";this.style.display = "none";document.cookie="happy_show_page_trace=yes";};';
+        $javascript .= 'if (document.cookie === "happy_show_page_trace=yes") {trace.style.display = "block";tips.style.display = "none";}';
         $javascript .= '</script>';
         $tpl        = '<div id="trace" style="width:99%;height:200px;position:absolute;bottom:0;display:none">';
         $tpl .= '<div title="关闭" style="height:30px;background:#ccc;"><div class="close">X</div></div>';
