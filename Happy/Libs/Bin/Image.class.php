@@ -29,16 +29,19 @@ class Image {
     /**
      * 普通属性定义区
      */
-    private $image    = null;  //图像资源句柄
-    private $water    = 'logo.png';    //水印图片
-    private $type     = array(1 => 'gif', 2 => 'jpeg', 3 => 'png');    //图片类型
-    private $margin   = '10'; //水印图片的margin值
-    private $pos      = self::RIGHT_BOTTOM;   //水印图片位置
-    private $overflow = true;   //是否使用原图
-    private $text     = '楊佰Happy';
-    private $fontfile = '1.ttf';    //水印文字字体
-    private $size     = '16';   //水印文字字体大小
-    private $color    = '#000000'; //水印文字颜色
+    private $image      = null;  //原始图像资源
+    private $water      = null;  //水印图像资源
+    private $waterImage = 'logo.png';    //水印图片
+    private $type       = array(1 => 'gif', 2 => 'jpeg', 3 => 'png');    //图片类型
+    private $margin     = 10; //水印图片的margin值
+    private $pos        = self::RIGHT_BOTTOM;   //水印图片位置
+    private $overflow   = true;   //是否使用原图
+    private $text       = 'http://weibo.com/yangbai1988';
+    private $fontfile   = 'arial.ttf';    //水印文字字体
+    private $size       = 14;   //水印文字字体大小
+    private $color      = '#000000'; //水印文字颜色
+    private $opacity    = 80;  //水印透明度
+    private $quality    = 75;  //jpeg图片压缩比
 
     /**
      * 架构函数
@@ -58,6 +61,7 @@ class Image {
         }
         $this->fontfile = CORE_PATH . 'Verify/ttf/' . $this->fontfile;
         $this->color    = $this->_getRgb($this->color);
+        //p(mb_detect_encoding($this->text));die;
     }
 
     /**
@@ -79,6 +83,9 @@ class Image {
      * @return type
      */
     private function _getImageInfo($image) {
+        if (!file_exists($image)) {
+            return array('width' => '', 'height' => '', 'type' => '');
+        }
         $info = getimagesize($image);
         return array('width' => $info[0], 'height' => $info[1], 'type' => $this->type[$info[2]]);
     }
@@ -90,7 +97,7 @@ class Image {
      */
     private function _checkImageType($image = null) {
         if (!is_null($image)) {
-            $info = _getImageSize($image);
+            $info = $this->_getImageInfo($image);
             if (in_array($info['type'], $this->type)) {
                 return true;
             }
@@ -105,7 +112,9 @@ class Image {
         extension_loaded('gd') || error('GD库没有开启');
         file_exists($srcImage) || error('原始图像不存在');
         $this->_checkImageType($srcImage) || error('原始图像格式不正确');
-        $this->_checkImageType($waterImage) || error('水印图像格式不正确');
+        if (file_exists($waterImage)) {
+            $this->_checkImageType($waterImage) || error('水印图像格式不正确');
+        }
     }
 
     /**
@@ -113,46 +122,44 @@ class Image {
      * @param type $pos
      * @return type
      */
-    private function _getWaterPos($pos = self::RIGHT_BOTTOM, $srcImage, $waterImage) {
+    private function _getWaterPos($srcImage, $waterImage, $pos = self::RIGHT_BOTTOM) {
         $location = array();
-        $srcImage = $this->_getImageInfo($srcImage);
-        $water    = $this->_getImageInfo($waterImage);
         ($pos < 1 || $pos > 9) && $pos      = mt_rand(1, 9);
         switch ($pos) {
             case self::LEFT_TOP:
                 $location['x'] = $location['y'] = $this->margin;
                 return $location;
             case self::MIDDLE_TOP:
-                $location['x'] = floor(($srcImage['width'] - $water['width']) / 2);
+                $location['x'] = floor(($srcImage['width'] - $waterImage['width']) / 2);
                 $location['y'] = $this->margin;
                 return $location;
             case self::RIGHT_TOP:
-                $location['x'] = $srcImage['width'] - $this->margin;
+                $location['x'] = $srcImage['width'] - $waterImage['width'] - $this->margin;
                 $location['y'] = $this->margin;
                 return $location;
             case self::LEFT_MIDDLE:
                 $location['x'] = $this->margin;
-                $location['y'] = floor(($srcImage['height'] - $water['height']) / 2);
+                $location['y'] = floor(($srcImage['height'] - $waterImage['height']) / 2);
                 return $location;
             case self::CENTER:
-                $location['x'] = floor(($srcImage['width'] - $water['width']) / 2);
-                $location['y'] = floor(($srcImage['height'] - $water['height']) / 2);
+                $location['x'] = floor(($srcImage['width'] - $waterImage['width']) / 2);
+                $location['y'] = floor(($srcImage['height'] - $waterImage['height']) / 2);
                 return $location;
             case self::RIGHT_MIDDLE:
-                $location['x'] = $srcImage['width'] - $this->margin;
-                $location['y'] = floor(($srcImage['height'] - $water['height']) / 2);
+                $location['x'] = $srcImage['width'] - $waterImage['width'] - $this->margin;
+                $location['y'] = floor(($srcImage['height'] - $waterImage['height']) / 2);
                 return $location;
             case self::LEFT_BOTTOM:
                 $location['x'] = $this->margin;
-                $location['y'] = $srcImage['height'] - $this->margin;
+                $location['y'] = $srcImage['height'] - $waterImage['height'] - $this->margin;
                 return $location;
             case self::MIDDLE_BOTTOM:
-                $location['x'] = floor(($srcImage['width'] - $water['width']) / 2);
-                $location['y'] = $srcImage['height'] - $this->margin;
+                $location['x'] = floor(($srcImage['width'] - $waterImage['width']) / 2);
+                $location['y'] = $srcImage['height'] - $waterImage['height'] - $this->margin;
                 return $location;
             case self::RIGHT_BOTTOM:
-                $location['x'] = $srcImage['width'] - $this->margin;
-                $location['y'] = $srcImage['height'] - $this->margin;
+                $location['x'] = $srcImage['width'] - $waterImage['width'] - $this->margin;
+                $location['y'] = $srcImage['height'] - $waterImage['height'] - $this->margin;
                 return $location;
         }
     }
@@ -181,18 +188,59 @@ class Image {
      * @param type $waterImage  [水印图片]
      * @param type $ext         [额外参数]
      */
-    public function waterImage($srcImage, $waterImage, $ext = array()) {
-        p($this->_getWaterPos($this->pos, $srcImage, $waterImage));
-        die;
+    public function waterMark($srcImage, $waterImage, $ext = array()) {
         $this->_checkEnv($srcImage, $waterImage);
         $this->setConfig($ext);
-        $pos         = $this->_getWaterPos($this->pos);
+        $filename    = $srcImage;
         $this->image = $this->_getImageResourceFromType($srcImage);
+        $src         = $this->_getImageInfo($srcImage);
+        $alias       = isset($ext['alias']) ? $ext['alias'] : '';
         if (file_exists($waterImage)) {
-            
+            $water       = $this->_getImageInfo($waterImage);
+            $this->water = $this->_getImageResourceFromType($waterImage);
+            $pos         = $this->_getWaterPos($src, $water, $this->pos);
+            imagecopymerge($this->image, $this->water, $pos['x'], $pos['y'], 0, 0, $water['width'], $water['height'], $this->opacity);
         } else {
-            $this->color = imagecolorallocate($this->image, $this->color['red'], $this->color['green'], $this->color['blue']);
-            imagettftext($this->image, $this->size, 0, $pos['x'], $pos['y'], $this->color, $this->fontfile, $this->text);
+            $arr             = imagettfbbox($this->size, 0, $this->fontfile, $this->text);
+            $water           = array();
+            $water['width']  = $arr[2] - $arr[0];
+            $water['height'] = $arr[3] - $arr[7];
+            $pos             = $this->_getWaterPos($src, $water, $this->pos);
+            $this->color     = imagecolorallocate($this->image, $this->color['red'], $this->color['green'], $this->color['blue']);
+            imagettftext($this->image, $this->size, 0, $pos['x'], $pos['y'] + $water['height'], $this->color, $this->fontfile, $this->text);
+        }
+        $this->_generatedImage($src['type'], $filename, $alias);
+        is_null($this->water) || imagedestroy($this->water);
+        is_null($this->image) || imagedestroy($this->image);
+    }
+
+    /**
+     * 输出图像
+     * @param type $imageType   [图像类型]
+     * @param type $filename    [图像保存路径]
+     * @param type $alias       [图像保存别名]
+     * @return boolean
+     */
+    private function _generatedImage($imageType = null, $filename = '', $alias = '') {
+        if (is_null($imageType)) {
+            return false;
+        }
+        if ($this->overflow !== false && !empty($alias)) {
+            $filename = $alias;
+        }
+        if (empty($filename)) {
+            return false;
+        }
+        switch ($imageType) {
+            case 'gif':
+                imagegif($this->image, $filename);
+                break;
+            case 'jpeg':
+                imagejpeg($this->image, $filename, $this->quality);
+                break;
+            case 'png':
+                imagepng($this->image, $filename);
+                break;
         }
     }
 
