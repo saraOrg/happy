@@ -162,8 +162,8 @@ class Verify {
             imagejpeg($this->image);
             return true;
         }
-        imagedestroy($this->image);
         trigger_error('请确保GD库函数是否正常', E_USER_WARNING);
+        is_null($this->image) || imagedestroy($this->image);
     }
 
     /**
