@@ -29,26 +29,37 @@ class Image {
     /**
      * 普通属性定义区
      */
-    private $image      = null;  //原始图像资源
-    private $water      = null;  //水印图像资源
-    private $waterImage = 'logo.png';    //水印图片
-    private $type       = array(1 => 'gif', 2 => 'jpeg', 3 => 'png');    //图片类型
-    private $margin     = 10; //水印图片的margin值
-    private $pos        = self::RIGHT_BOTTOM;   //水印图片位置
-    private $overflow   = true;   //是否使用原图
-    private $text       = 'http://weibo.com/yangbai1988';
-    private $fontfile   = 'arial.ttf';    //水印文字字体
-    private $size       = 14;   //水印文字字体大小
-    private $color      = '#000000'; //水印文字颜色
-    private $opacity    = 80;  //水印透明度
-    private $quality    = 75;  //jpeg图片压缩比
+    private $water_switch = true;               //图像水印开关
+    private $image        = null;               //原始图像资源
+    private $water        = null;               //水印图像资源
+    private $waterImage   = 'logo.png';         //水印图片
+    private $type         = array(//图片类型
+        1 => 'gif',
+        2 => 'jpeg',
+        3 => 'png'
+    );
+    private $margin       = 10;                         //水印图片的margin值
+    private $pos          = self::RIGHT_BOTTOM;         //水印图片位置
+    private $overflow     = true;                       //是否使用原图
+    private $text         = 'http://weibo.com/yangbai1988';
+    private $fontfile     = 'arial.ttf';                    //水印文字字体
+    private $size         = 14;                         //水印文字字体大小
+    private $color        = '#000000'; //水印文字颜色
+    private $opacity      = 80;     //水印透明度
+    private $quality      = 75;     //jpeg图片压缩比
+    private $thumb_switch = true;   //图像缩略图开关
+    private $thumb_type   = 5;    //缩略图类型
+    private $thumb_size   = array(//缩略图尺寸
+        'width'  => 80,
+        'height' => 80
+    );
 
     /**
      * 架构函数
      */
-
     public function __construct() {
-        
+        config('WATER_SWITCH') && $this->water_switch = config('WATER_SWITCH');
+        config('THUMB_SWITCH') && $this->thumb_switch = config('THUMB_SWITCH');
     }
 
     /**
@@ -91,6 +102,15 @@ class Image {
     }
 
     /**
+     * 快速获取图像类型
+     * @param type $image   [图像路径]
+     * @return type
+     */
+    private function _getImageType($image) {
+        return image_type_to_extension(exif_imagetype($image));
+    }
+
+    /**
      * 检测图像类型
      * @param type $image
      * @return boolean
@@ -108,11 +128,11 @@ class Image {
     /**
      * 环境检测
      */
-    private function _checkEnv($srcImage, $waterImage) {
+    private function _checkEnv($srcImage, $waterImage = '') {
         extension_loaded('gd') || error('GD库没有开启');
         file_exists($srcImage) || error('原始图像不存在');
         $this->_checkImageType($srcImage) || error('原始图像格式不正确');
-        if (file_exists($waterImage)) {
+        if ($waterImage !== '' && file_exists($waterImage)) {
             $this->_checkImageType($waterImage) || error('水印图像格式不正确');
         }
     }
@@ -183,12 +203,74 @@ class Image {
     }
 
     /**
+     * 获取等比缩放的尺寸
+     * @param type $srcImage
+     * @return type
+     */
+    private function _geometricScaling($srcImage) {
+        $thumb_size = $this->thumb_size;
+        if ($srcImage['width'] / $this->thumb_size['width'] < $srcImage['height'] / $this->thumb_size['height']) {
+            $thumb_size['width'] = $srcImage['width'] * $this->thumb_size['height'] / $srcImage['height'];
+        } else {
+            $thumb_size['height'] = $srcImage['height'] * $this->thumb_size['width'] / $srcImage['width'];
+        }
+        return $thumb_size;
+    }
+
+    /**
+     * 获取缩略图的尺寸(默认是执行等比缩放)
+     * @param type $srcImage
+     * @return type
+     */
+    private function _getThumbSize($srcImage) {
+        $size = $this->thumb_size;
+        list($sW, $sH) = array($srcImage['width'], $srcImage['height'], $srcImage['type']);
+        if ($sW > $size['width'] || $sH > $size['height']) {
+            switch ($this->thumb_type) {
+                case 1: //宽度不变，高度自适应缩放
+                    $size['height'] = $size['width'] / $sW * $sH;
+                    break;
+                case 2: //高度不变，宽度自适应缩放
+                    $size['width']  = $size['height'] / $sH * $sW;
+                    break;
+                case 3: //宽度不变，自适应高度裁剪
+                    $size['height'] = min($size['height'] * $sW / $size['width'], $sH);
+                    break;
+                case 4: //高度不变，自适应宽度裁剪
+                    $size['width']  = min($size['width'] * $sH / $size['height'], $sW);
+                    break;
+                case 5:
+                default:
+                    $size           = $this->_geometricScaling($srcImage);
+                    break;
+            }
+        } else {
+            $size = array('width' => $sW, 'height' => $sH);
+        }
+        return $size;
+    }
+
+    public function thumb($srcImage, $ext = array()) {
+        if ($this->thumb_switch !== true) {
+            return false;
+        }
+        $this->_checkEnv($srcImage);
+        $this->setConfig($ext);
+        $src  = $this->_getImageInfo($srcImage);
+        $size = $this->_getThumbSize($src);
+        p($size);
+    }
+
+    /**
      * 图片加水印
      * @param type $srcImage    [原始图片]
      * @param type $waterImage  [水印图片]
      * @param type $ext         [额外参数]
      */
     public function waterMark($srcImage, $waterImage, $ext = array()) {
+        if ($this->water_switch !== true) {
+            return false;
+        }
         $this->_checkEnv($srcImage, $waterImage);
         $this->setConfig($ext);
         $filename    = $srcImage;
