@@ -32,6 +32,7 @@ class Image {
     private $water_switch = true;               //图像水印开关
     private $image        = null;               //原始图像资源
     private $water        = null;               //水印图像资源
+    private $thumb        = null;               //缩略图像资源
     private $waterImage   = 'logo.png';         //水印图片
     private $type         = array(//图片类型
         1 => 'gif',
@@ -40,7 +41,6 @@ class Image {
     );
     private $margin       = 10;                         //水印图片的margin值
     private $pos          = self::RIGHT_BOTTOM;         //水印图片位置
-    private $overflow     = true;                       //是否使用原图
     private $text         = 'http://weibo.com/yangbai1988';
     private $fontfile     = 'arial.ttf';                    //水印文字字体
     private $size         = 14;                         //水印文字字体大小
@@ -48,15 +48,18 @@ class Image {
     private $opacity      = 80;     //水印透明度
     private $quality      = 75;     //jpeg图片压缩比
     private $thumb_switch = true;   //图像缩略图开关
-    private $thumb_type   = 5;    //缩略图类型
+    private $thumb_mode   = 5;      //缩略图模式
+    private $thumb_type   = 'gif';  //缩略图类型
     private $thumb_size   = array(//缩略图尺寸
         'width'  => 80,
         'height' => 80
     );
+    private $thumb_pre    = 'thumb_';  //缩略图名称前缀
 
     /**
      * 架构函数
      */
+
     public function __construct() {
         config('WATER_SWITCH') && $this->water_switch = config('WATER_SWITCH');
         config('THUMB_SWITCH') && $this->thumb_switch = config('THUMB_SWITCH');
@@ -208,7 +211,9 @@ class Image {
      * @return type
      */
     private function _geometricScaling($srcImage) {
-        $thumb_size = $this->thumb_size;
+        $thumb_size            = $this->thumb_size;
+        $thumb_size['swidth']  = $srcImage['width'];
+        $thumb_size['sheight'] = $srcImage['height'];
         if ($srcImage['width'] / $this->thumb_size['width'] < $srcImage['height'] / $this->thumb_size['height']) {
             $thumb_size['width'] = $srcImage['width'] * $this->thumb_size['height'] / $srcImage['height'];
         } else {
@@ -223,42 +228,77 @@ class Image {
      * @return type
      */
     private function _getThumbSize($srcImage) {
-        $size = $this->thumb_size;
+        $size            = $this->thumb_size;
+        $size['swidth']  = $srcImage['width'];
+        $size['sheight'] = $srcImage['height'];
         list($sW, $sH) = array($srcImage['width'], $srcImage['height'], $srcImage['type']);
         if ($sW > $size['width'] || $sH > $size['height']) {
-            switch ($this->thumb_type) {
+            switch ($this->thumb_mode) {
                 case 1: //宽度不变，高度自适应缩放
-                    $size['height'] = $size['width'] / $sW * $sH;
+                    $size['height']  = $size['width'] / $sW * $sH;
                     break;
                 case 2: //高度不变，宽度自适应缩放
-                    $size['width']  = $size['height'] / $sH * $sW;
+                    $size['width']   = $size['height'] / $sH * $sW;
                     break;
                 case 3: //宽度不变，自适应高度裁剪
-                    $size['height'] = min($size['height'] * $sW / $size['width'], $sH);
+                    $size['sheight'] = min($size['height'] * $sW / $size['width'], $sH);
                     break;
                 case 4: //高度不变，自适应宽度裁剪
-                    $size['width']  = min($size['width'] * $sH / $size['height'], $sW);
+                    $size['swidth']  = min($size['width'] * $sH / $size['height'], $sW);
                     break;
                 case 5:
                 default:
-                    $size           = $this->_geometricScaling($srcImage);
+                    $size            = $this->_geometricScaling($srcImage);
                     break;
             }
         } else {
-            $size = array('width' => $sW, 'height' => $sH);
+            $size['width']  = $sW;
+            $size['height'] = $sH;
         }
         return $size;
     }
 
+    /**
+     * 针对gif图像的颜色透明做特殊处理
+     */
+    private function _gifColorTransparent() {
+        $otsc = imagecolortransparent($this->image);
+        if ($otsc >= 0 && $otsc <= imagecolorstotal($this->image)) {
+            $tran  = imagecolorsforindex($this->image, $otsc);
+            $color = imagecolorallocate($this->thumb, $tran["red"], $tran["green"], $tran["blue"]);
+            imagefill($this->image, 0, 0, $color);
+            imagecolortransparent($this->thumb, $color);
+        }
+    }
+    
+    /**
+     * 图像缩放处理
+     * @param type $srcImage    [原图像]
+     * @param type $ext         [扩展配置]
+     * @return boolean          
+     */
     public function thumb($srcImage, $ext = array()) {
         if ($this->thumb_switch !== true) {
             return false;
         }
         $this->_checkEnv($srcImage);
         $this->setConfig($ext);
-        $src  = $this->_getImageInfo($srcImage);
-        $size = $this->_getThumbSize($src);
-        p($size);
+        $src              = $this->_getImageInfo($srcImage);
+        $size             = $this->_getThumbSize($src);
+        $function         = 'imagecreatefrom' . $src['type'];
+        $this->thumb_type = $src['type'];
+        $this->image      = $function($srcImage);
+        if ($this->thumb_type === 'gif') {
+            $this->thumb = imagecreate($size['width'], $size['height']);
+            $this->_gifColorTransparent();
+        } else {
+            $this->thumb = imagecreatetruecolor($size['width'], $size['height']);
+        }
+        imagecopyresampled($this->thumb, $this->image, 0, 0, 0, 0, $size['width'], $size['height'], $size['swidth'], $size['sheight']);
+        //imagecopyresized($this->thumb, $this->image, 0, 0, 0, 0, $size['width'], $size['height'], $size['swidth'], $size['sheight']);
+        $info  = pathinfo($srcImage);
+        $alias = $info['dirname'] . '/' . $this->thumb_pre . $info['basename'];
+        $this->_generatedImage($this->thumb, $this->thumb_type, $srcImage, $alias);
     }
 
     /**
@@ -291,7 +331,7 @@ class Image {
             $this->color     = imagecolorallocate($this->image, $this->color['red'], $this->color['green'], $this->color['blue']);
             imagettftext($this->image, $this->size, 0, $pos['x'], $pos['y'] + $water['height'], $this->color, $this->fontfile, $this->text);
         }
-        $this->_generatedImage($src['type'], $filename, $alias);
+        $this->_generatedImage($this->image, $src['type'], $filename, $alias);
         is_null($this->water) || imagedestroy($this->water);
         is_null($this->image) || imagedestroy($this->image);
     }
@@ -303,11 +343,11 @@ class Image {
      * @param type $alias       [图像保存别名]
      * @return boolean
      */
-    private function _generatedImage($imageType = null, $filename = '', $alias = '') {
-        if (is_null($imageType)) {
+    private function _generatedImage($image, $imageType, $filename = '', $alias = '') {
+        if (empty($imageType) || empty($image)) {
             return false;
         }
-        if ($this->overflow !== false && !empty($alias)) {
+        if (!empty($alias)) {
             $filename = $alias;
         }
         if (empty($filename)) {
@@ -315,15 +355,16 @@ class Image {
         }
         switch ($imageType) {
             case 'gif':
-                imagegif($this->image, $filename);
+                imagegif($image, $filename);
                 break;
             case 'jpeg':
-                imagejpeg($this->image, $filename, $this->quality);
+                imagejpeg($image, $filename, $this->quality);
                 break;
             case 'png':
-                imagepng($this->image, $filename);
+                imagepng($image, $filename);
                 break;
         }
+        return $filename;
     }
 
 }
