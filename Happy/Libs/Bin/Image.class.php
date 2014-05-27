@@ -270,7 +270,7 @@ class Image {
             imagecolortransparent($this->thumb, $color);
         }
     }
-    
+
     /**
      * 图像缩放处理
      * @param type $srcImage    [原图像]
@@ -299,6 +299,8 @@ class Image {
         $info  = pathinfo($srcImage);
         $alias = $info['dirname'] . '/' . $this->thumb_pre . $info['basename'];
         $this->_generatedImage($this->thumb, $this->thumb_type, $srcImage, $alias);
+        is_null($this->thumb) || imagedestroy($this->thumb);
+        is_null($this->image) || imagedestroy($this->image);
     }
 
     /**
