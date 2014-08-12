@@ -31,7 +31,11 @@ class UploadFile {
             isset($config[$attr]) && $this->$attr = $config[$attr];
         }
     }
-
+    
+    /**
+     * 检查上传目录的完整性
+     * @return boolean
+     */
     private function _checkUploadDir() {
         !is_dir($this->path) && Dir::mkdir($this->path);
         if (is_dir($this->path) && !is_writeable($this->path)) {
