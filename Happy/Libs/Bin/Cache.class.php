@@ -52,8 +52,8 @@ class Cache {
         if (self::$handle === 'file') {
             $filename = $this->getFilename($key);
         }
-        $data = serialize($data);   //序列化
-        $data = gzcompress($data);  //压缩
+        $serialize_data = serialize($data);   //序列化
+        $data = gzcompress($serialize_data);  //压缩
         if (is_writable($this->path)) {
             file_put_contents($filename, $data);
             touch($filename, time() + $expire);
@@ -65,9 +65,8 @@ class Cache {
             $filename = $this->getFilename($key);
             if (file_exists($filename) && filemtime($filename) > time()) {
                 $data = file_get_contents($filename);
-                $data = gzuncompress($data);
-                $data = unserialize($data);
-                return $data;
+                $uncompress_data = gzuncompress($data);
+                return unserialize($uncompress_data);
             } else {
                 file_exists($filename) && unlink($filename);
                 return null;
