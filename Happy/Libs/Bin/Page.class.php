@@ -26,9 +26,9 @@ class Page {
     private $page_now;          //当前页
     private $start_id;          //当前页起始页ID
     private $end_id;            //当前页结束ID
-    private $url;               //当前也url地址
-    private $desc   = array();    //描述信息
-    private $config = array(//基础配置
+    private $url;               //当前页url地址
+    private $desc   = array();  //描述信息
+    private $config = array(    //基础配置
         'tital' => '统计信息',
         'first' => '首页',
         'pres'  => '上几页',
