@@ -82,12 +82,15 @@ class UploadFile {
             $filename = pathinfo($value['name']);
             $extension = $filename['extension'];
             if (!in_array($extension, $this->ext)) {
-                $this->error = '非法上传文件';
+                $this->error = '文件类型不允许';
                 return false;
             }
             if (intval($value['size']) > $this->size) {
                 $this->error = '上传文件大小超过限制';
                 return false;
+            }
+            if (!is_uploaded_file($value['tmp'])) {
+                $this->error = '非法文件';
             }
         }
         return true;
