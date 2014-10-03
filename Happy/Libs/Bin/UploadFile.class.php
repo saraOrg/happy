@@ -14,10 +14,9 @@
 class UploadFile {
 
     private $path  = './Uploads/';   //上传根目录
-    private $ext   = array('jpg', 'gif', 'jpeg', 'gif', 'doc');   //允许上传文件的类型
+    private $ext   = array('jpg', 'gif', 'jpeg', 'png', 'gif', 'doc');   //允许上传文件的类型
     private $size  = 19880430;   //上传文件大小上限
     private $error = '';    //上传错误信息
-    private $uploadFiles = array(); //保存上传文件返回的信息
     private $errorInfo = array(
         1   =>  '上传的文件超过了 php.ini 中 upload_max_filesize 选项限制的值',
         2   =>  '上传文件的大小超过了 HTML 表单中 MAX_FILE_SIZE 选项指定的值',
@@ -52,7 +51,11 @@ class UploadFile {
         }
         return true;
     }
-
+    
+    /**
+     * 上传文件操作
+     * @return boolean
+     */
     public function upload() {
         if ($this->_checkUploadDir() !== true) {
             return false;
@@ -61,11 +64,31 @@ class UploadFile {
         if ($this->_checkFile($files) !== true) {
             return false;
         }
-        $this->uploadFiles = $this->_save($files);
+        return $this->_save($files);
     }
     
+    /**
+     * 上传文件到上传目录
+     * @param type $files   上传文件队列
+     * @return boolean|string
+     */
     private function _save($files = array()) {
-        
+        $filesInfo = array();
+        foreach ($files as $file) {
+            $savePath = $this->path . $this->_getFileType($file['name']);
+            is_dir($savePath) || mkdir($savePath, 0777);
+            $savePath .= '/' . date('Y-m-d') . '/';
+            is_dir($savePath) || mkdir($savePath, 0777);
+            $type = $this->_getFileExtensionName($file['name']);
+            $saveName = md5(uniqid()) . '.' . $type;
+            if (!move_uploaded_file($file['tmp_name'], $savePath . $saveName)) {
+                $this->error = '上传文件' .$file['name'].'失败';
+                return false;
+            } else {
+                $filesInfo[] = array('savePath' => $savePath, 'type' => $type, 'saveName' => $saveName);
+            }
+        }
+        return $filesInfo;
     }
     
     /**
@@ -79,9 +102,7 @@ class UploadFile {
                 $this->error = $this->errorInfo[$value['error']];
                 return false;
             }
-            $filename = pathinfo($value['name']);
-            $extension = $filename['extension'];
-            if (!in_array($extension, $this->ext)) {
+            if (!in_array($this->_getFileExtensionName($value['name']), $this->ext)) {
                 $this->error = '文件类型不允许';
                 return false;
             }
@@ -89,8 +110,9 @@ class UploadFile {
                 $this->error = '上传文件大小超过限制';
                 return false;
             }
-            if (!is_uploaded_file($value['tmp'])) {
+            if (!is_uploaded_file($value['tmp_name'])) {
                 $this->error = '非法文件';
+                return false;
             }
         }
         return true;
@@ -122,6 +144,30 @@ class UploadFile {
             }
         }
         return $upload_files;
+    }
+    
+    /**
+     * 根据文件名获取文件后缀名
+     * @param type $filename
+     * @return type
+     */
+    private function _getFileExtensionName($filename = '') {
+        $filename = pathinfo($filename);
+        return isset($filename['extension']) ? $filename['extension'] : '';
+    }
+    
+    /**
+     * 根据文件名获取文件类型
+     * @param type $filename
+     * @return string
+     */
+    private function _getFileType($filename = '') {
+        $extenion = $this->_getFileExtensionName($filename);
+        if (in_array($extenion, array('jpg', 'png', 'gif'))) {
+            return 'image';
+        } else {
+            return $extenion;
+        }
     }
     
     /**
